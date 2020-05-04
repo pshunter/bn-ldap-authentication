@@ -41,11 +41,18 @@ module LdapAuthenticator
           ldap_filter = ldap_filter & Net::LDAP::Filter.construct(provider_info[:filter])
         end
 
-        ldap.bind_as(
+        result = ldap.bind_as(
             base: provider_info[:base],
             filter: ldap_filter,
             password: user_params[:password]
         )
+        
+        unless ldap.bind
+          logger.debug "Result: #{ldap.get_operation_result.code}"
+          logger.debug "Message: #{ldap.get_operation_result.message}"
+        end
+
+        result
     end
 
     def parse_auth(result, role_field)
